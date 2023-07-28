@@ -3,7 +3,6 @@ from datetime import datetime
 from openpyxl import load_workbook
 from openpyxl.worksheet.worksheet import Worksheet
 
-from logic.utils.excel_extends import open_sheet
 from logic.const import MAIN_DIR, MONTH_LIST, DEPARTAMENT
 
 

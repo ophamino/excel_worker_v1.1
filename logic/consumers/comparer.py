@@ -61,7 +61,15 @@ class ConsumersComparer:
         file.save(f"{path}\Сводная ведомость потребителей.xlsx")
         
     def insert_formula(self, sheet: Worksheet):
-        for report_row in range(6, sheet.max_row+1):
-            sheet.cell(row=report_row, column=23).value = "=V{0}-U{0}".format(report_row)
-            sheet.cell(row=report_row, column=24).value = "=W{0}*T{0}".format(report_row)
-            sheet.cell(row=report_row, column=29).value = "=X{0}+Y{0}+Z{0}+AA{0}+AB{0}".format(report_row)
+        for row in range(6, sheet.max_row+1):
+            sheet.cell(row=row, column=23).value = "=V{0}-U{0}".format(row)
+            sheet.cell(row=row, column=24).value = "=W{0}*T{0}".format(row)
+            sheet.cell(row=row, column=25).value = "=IF(ISBLANK($AL${0}),0,ROUND(($X${0}*$AL${0}),0))".format(row)
+            sheet.cell(row=row, column=29).value = "=X{0}+Y{0}+Z{0}+AA{0}+AB{0}".format(row)
+        sheet.cell(row=4, column=23).value = "=SUM(W6:W{0})".format(sheet.max_row + 1)
+        sheet.cell(row=4, column=24).value = "=SUM(X6:X{0})".format(sheet.max_row + 1)
+        sheet.cell(row=4, column=25).value = "=SUM(Y6:Y{0})".format(sheet.max_row + 1)
+        sheet.cell(row=4, column=26).value = "=SUM(Z6:Z{0})".format(sheet.max_row + 1)
+        sheet.cell(row=4, column=27).value = "=SUM(AA6:AA{0})".format(sheet.max_row + 1)
+        sheet.cell(row=4, column=28).value = "=SUM(AB6:AB{0})".format(sheet.max_row + 1)
+        sheet.cell(row=4, column=29).value = "=SUM(AC6:AC{0})".format(sheet.max_row + 1)
