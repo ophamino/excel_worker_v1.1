@@ -6,7 +6,7 @@ from openpyxl.worksheet.worksheet import Worksheet
 from logic.const import MAIN_DIR, MONTH_LIST, DEPARTAMENT
 
 
-class Calculate:
+class ConsumersCalculate:
     
     def serialize_static(self, status: str):
         print("[INFO] Сериализуются данные Реестра потребителей")
@@ -50,13 +50,13 @@ class Calculate:
         print("[INFO] Сериализуются данные Сводной ведомости")
         path = f"{MAIN_DIR}/Сводный баланс энергопотребления/Сводный баланс {datetime.now().year}/Сводная ведомость потребителей/Сводная ведомость {status} потребителей.xlsx"
         file = load_workbook(path, data_only=True)
-        sheet = file[MONTH_LIST[month - 1]]
+        sheet = file[MONTH_LIST[month - 2]]
         data = {}
         
         for row in range(6, sheet.max_row + 1):
             data[sheet.cell(row=row, column=3).value] = {
                 "U": sheet.cell(row=row, column=22).value,
-                "V": sheet.cell(row=row, column=22).value,
+                "V": "",
                 "W": "",
                 "X": "",
                 "Y": "",
@@ -93,18 +93,19 @@ class Calculate:
         return keys
     
     def insert_formula(self, sheet: Worksheet):
-        for row in range(6, sheet.max_row+1):
-            sheet.cell(row=row, column=23).value = "=V{0}-U{0}".format(row)
+        for row in range(6, sheet.max_row +1):
+            sheet.cell(row=row, column=1).value = row - 5
+            sheet.cell(row=row, column=23).value = "=IF(V{0},V{0}-U{0},0)".format(row)
             sheet.cell(row=row, column=24).value = "=W{0}*T{0}".format(row)
             sheet.cell(row=row, column=25).value = "=IF(ISBLANK($AL${0}),0,ROUND(($X${0}*$AL${0}),0))".format(row)
             sheet.cell(row=row, column=29).value = "=X{0}+Y{0}+Z{0}+AA{0}+AB{0}".format(row)
-        sheet.cell(row=4, column=23).value = "=SUM(W6:W{0})".format(sheet.max_row + 1)
-        sheet.cell(row=4, column=24).value = "=SUM(X6:X{0})".format(sheet.max_row + 1)
-        sheet.cell(row=4, column=25).value = "=SUM(Y6:Y{0})".format(sheet.max_row + 1)
-        sheet.cell(row=4, column=26).value = "=SUM(Z6:Z{0})".format(sheet.max_row + 1)
-        sheet.cell(row=4, column=27).value = "=SUM(AA6:AA{0})".format(sheet.max_row + 1)
-        sheet.cell(row=4, column=28).value = "=SUM(AB6:AB{0})".format(sheet.max_row + 1)
-        sheet.cell(row=4, column=29).value = "=SUM(AC6:AC{0})".format(sheet.max_row + 1)
+        sheet.cell(row=4, column=23).value = "=SUM(W6:W{0})".format(sheet.max_row)
+        sheet.cell(row=4, column=24).value = "=SUM(X6:X{0})".format(sheet.max_row)
+        sheet.cell(row=4, column=25).value = "=SUM(Y6:Y{0})".format(sheet.max_row)
+        sheet.cell(row=4, column=26).value = "=SUM(Z6:Z{0})".format(sheet.max_row)
+        sheet.cell(row=4, column=27).value = "=SUM(AA6:AA{0})".format(sheet.max_row)
+        sheet.cell(row=4, column=28).value = "=SUM(AB6:AB{0})".format(sheet.max_row)
+        sheet.cell(row=4, column=29).value = "=SUM(AC6:AC{0})".format(sheet.max_row)
     
     
     def format_data(self, month: int, status: str):
@@ -123,7 +124,7 @@ class Calculate:
                             row.append(elements[key])
                         if key in svod[consumer_id].keys():
                             row.append(svod[consumer_id][key])
-                    sheet.append(row)
+                    sheet.append([value if value else "" for value in row])
             self.insert_formula(sheet)
             file.save(f"{MAIN_DIR}/Шаблоны расчетных ведомостей/РВ {status} потребителей/РВ {name} {datetime.now().year} {MONTH_LIST[month - 1]}.xlsx")
         print("[INFO] ГОТОВО!")

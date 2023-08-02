@@ -1,8 +1,38 @@
 from logic.utils.tree_dirs import TreeDir
-from logic.bicu.comparer import BicuComparer
-from logic.bicu.calculate import BicuCalculate
-from logic.consumers.comparer import ConsumersComparer
-from logic.consumers.calculate import Calculate
+from logic.consumers import start_consumer
+from logic.bicu import start_bicu
+from logic.balance import start_balance
+from logic.analytics import start_analytics
 
-TreeDir().create_tree_dirs()
-BicuCalculate().format_data(5)
+
+
+def main():
+    TreeDir().create_tree_dirs()
+    print()
+    print("Welcome!")
+    main_action = [
+        "",
+        "----------------Меню---------------------------",
+        "Выберите действие, которое хотите совершить: ",
+        "1. Потребители",
+        "2. БИКУ",
+        "3. Сформировать сводный баланс",
+        "4. Сформировать аналитику"
+        "________________________________________________"
+        ""
+    ]
+    while True:
+        print(*main_action, sep='\n')
+        action = int(input("Выберите порядковый номер действия: "))
+        if action == 1:
+            start_consumer()
+        if action == 2:
+            start_bicu()
+        if action == 3:
+            start_balance()
+        if action == 4:
+            start_analytics()
+
+
+if __name__ == "__main__":
+    main()
