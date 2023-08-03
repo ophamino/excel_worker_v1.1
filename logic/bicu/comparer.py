@@ -21,9 +21,9 @@ class BicuComparer:
         sheet = open_sheet(file, month)
         
         try:
-            file_names = os.listdir(f"{path}{MONTH_LIST[month - 1]}")
+            file_names = os.listdir(f"{path}РВ БИКУ {MONTH_LIST[month - 1]}")
             for file_name in file_names:
-                rv_file = load_workbook(f"{path}{MONTH_LIST[month - 1]}/{file_name}")
+                rv_file = load_workbook(f"{path}РВ БИКУ {MONTH_LIST[month - 1]}/{file_name}")
                 rv_sheet = rv_file.worksheets[0]
                 flag = 8
                 for row in rv_sheet.iter_rows(min_row=8, values_only=True):

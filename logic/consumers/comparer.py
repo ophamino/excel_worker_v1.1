@@ -11,8 +11,8 @@ class ConsumersComparer:
     
     def collect_files(self, month: int, file_status: str):
         path = f"{MAIN_DIR}/Сводный баланс энергопотребления/Сводный баланс {datetime.now().year}/Сводная ведомость потребителей/"
-        file_path = f"{MAIN_DIR}/Сводный баланс энергопотребления/Сводный баланс {datetime.now().year}/Сводная ведомость потребителей/Сводная ведомость {file_status} потребителей.xlsx"
-        dir_path = f"{MAIN_DIR}/Сводный баланс энергопотребления/Сводный баланс {datetime.now().year}/Сводная ведомость потребителей/{MONTH_LIST[month - 1]}/РВ {file_status} потребителей"
+        file_path = path + f"Сводная ведомость {file_status} потребителей.xlsx"
+        dir_path = path + f"РВ Потребителей {MONTH_LIST[month - 1]}/РВ {file_status} потребителей"
         
         if not os.path.exists(file_path):
             file = load_workbook('./template/svod.xlsx')
@@ -24,20 +24,14 @@ class ConsumersComparer:
         try:
             file_names = os.listdir(dir_path)
             for file_name in file_names:
-                rv_file = load_workbook(f"{dir_path}/{file_name}")
+                rv_file = load_workbook(f"{dir_path}/{file_name}", data_only=True)
                 rv_sheet = rv_file.worksheets[0]
-                flag = 6
-                flag_2 = 6
                 for row in rv_sheet.iter_rows(min_row=6, values_only=True):
-                    if row[0]:
-                        sheet.append(row)
-                        sheet.cell(row=flag, column=6).value = str(sheet.cell(row=flag, column=6).value)
-                        sheet.cell(row=flag, column=19).value = str(sheet.cell(row=flag, column=19).value)
-                        flag += 1
+                    sheet.append(row)
             self.insert_formula(sheet)
             file.save(file_path)
         except Exception as error:
-            print(f"Файл отсутсвует, проверьте директорию {path}{MONTH_LIST[month - 1]}>")
+            print(f"Файл отсутсвует, проверьте директорию {path}{MONTH_LIST[month - 1]}> {error}")
     
     def collect_total_files(self, month: int):
         path = f"{MAIN_DIR}/Сводный баланс энергопотребления/Сводный баланс {datetime.now().year}/Сводная ведомость потребителей/"
@@ -45,7 +39,7 @@ class ConsumersComparer:
         if not os.path.exists(f"{path}\Сводная ведомость потребителей.xlsx"):
             file = load_workbook('template/svod.xlsx')
             file.save(f"{path}\Сводная ведомость потребителей.xlsx")
-        file = load_workbook(f"{path}\Сводная ведомость потребителей.xlsx")
+        file = load_workbook(f"{path}\Сводная ведомость потребителей.xlsx", data_only=True)
         sheet = file[MONTH_LIST[month - 1]]
         try:
             comerce = load_workbook(f"{path}\Сводная ведомость Коммерческих потребителей.xlsx", data_only=True)[MONTH_LIST[month - 1]]
@@ -62,7 +56,8 @@ class ConsumersComparer:
         
     def insert_formula(self, sheet: Worksheet):
         for row in range(6, sheet.max_row + 1):
-            sheet.cell(row=row, column=29).value = str(sheet.cell(row=row, column=29).value)
+            sheet.cell(row=row, column=6).value = str(sheet.cell(row=row, column=6).value)
+            sheet.cell(row=row, column=19).value = str(sheet.cell(row=row, column=19).value)
             sheet.cell(row=row, column=1).value = row - 5
             sheet.cell(row=row, column=23).value = "=V{0}-U{0}".format(row)
             sheet.cell(row=row, column=24).value = "=W{0}*T{0}".format(row)

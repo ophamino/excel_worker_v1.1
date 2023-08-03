@@ -46,14 +46,14 @@ class TreeDir:
         """Функуия для создания содержимого 'Сводная ведомость БИКУ'"""
         path += "/Сводная ведомость БИКУ"
         self.validate_dir(path)
-        [self.validate_dir(f"{path}/{folder}") for folder in MONTH_LIST]
+        [self.validate_dir(f"{path}/РВ БИКУ {folder}") for folder in MONTH_LIST]
     
     def __create_comsumers(self, path: str) -> None:
         """Функуия для создания содержимого 'Сводная ведомость потребителей'"""
         path += "/Сводная ведомость потребителей"
-        [self.validate_dir(f"{path}/{folder}") for folder in MONTH_LIST]
-        [self.validate_dir(f"{path}/{folder}/РВ Бытовых потребителей") for folder in MONTH_LIST]
-        [self.validate_dir(f"{path}/{folder}/РВ Коммерческих потребителей") for folder in MONTH_LIST]
+        [self.validate_dir(f"{path}/РВ Потребителей {folder}") for folder in MONTH_LIST]
+        [self.validate_dir(f"{path}/РВ Потребителей {folder}/РВ Бытовых потребителей") for folder in MONTH_LIST]
+        [self.validate_dir(f"{path}/РВ Потребителей {folder}/РВ Коммерческих потребителей") for folder in MONTH_LIST]
     
     def __create_balance_folders(self) -> None:
         """Функция для создания содержимого папки 'Сводный баланс энергопотребления'"""
