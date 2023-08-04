@@ -3,11 +3,11 @@ from logic.consumers import start_consumer
 from logic.bicu import start_bicu
 from logic.balance import start_balance
 from logic.analytics import start_analytics
-from logic.balance.calculate import Balance
+from logic.analytics.balance_m import BalanceAnalitic
 
 
-test = Balance()
-test.create_balance(6)
+test = BalanceAnalitic()
+test.create_analytics(6)
 
 
 def main():

@@ -1,100 +1,99 @@
-from matplotlib import pyplot as plt
+from matplotlib import pyplot 
 import numpy as np
 
-from logic.balance.calculate import Balance
 from openpyxl import load_workbook
 from openpyxl.drawing.image import Image
-
 from openpyxl.worksheet.worksheet import Worksheet
 from openpyxl.styles import PatternFill, Alignment, Font
 
-class BalanceAnalytics:
+from logic.balance.calculate import Balance
+from logic.const import MAIN_DIR
+
+class BalanceAnalitic:
     
-    model = Balance()
+    titles_font = Font(size=28, bold=True)
+    alignment = Alignment(horizontal="center", vertical="center")
+    depataments = ["DS0101", "DS0301", "DS5301", "DS0701", "DS0801"]
     
-    titles_font = Font(
-        size=28,
-        bold=True,
-    )
     
-    alignment = Alignment(
-        horizontal="center",
-        vertical="center"
-    )
-    
-    def get_data(self, month: str | int):
-        data = self.model.serialize_balance(month)
-        return data
-    
-    def write_balance_pie(self, data: dict):
-        labels = list([value["name"] for key, value in data.items() if key != "DS"])
-        slices = list([abs(value["balance"]) for key, value in data.items() if key != "DS" if value["balance"] != 0])
+    def write_balance_pie(self, data: dict[str, dict]):
+        labels = [data[depatement]["name"] for depatement in self.depataments if data[depatement]["name"]]
+        slices = [abs(data[depatement]["balance"]) for depatement in self.depataments]
+        percent = [f'{round(i / abs(data["DS"]["balance"]) * 100, 1)}%' for i in slices if i != 0]
+        
         if not slices:
             slices += [1] * 5
         if not data["DS"]["balance"]:
             data["DS"]["balance"] = 5
-        percent = list([f'{round(i / abs(data["DS"]["balance"]) * 100, 1)}%' for i in slices if i != 0])
-        fig, ax = plt.subplots()
-        ax.pie(slices,labels=percent , wedgeprops={"edgecolor": "black", "linewidth": 1})
+            
+        fig, ax = pyplot.subplots()
+        ax.pie(slices, labels=percent, wedgeprops={"edgecolor": "black", "linewidth": 1})
         ax.legend(labels, loc=2)
-        plt.pie([1], colors="w", radius=0.6)
-        plt.title("Сальдо переток")
-        plt.savefig("./images/balance_pie.png")
+        pyplot.pie([1], colors="w", radius=0.6)
+        pyplot.title("Сальда переток")
+        pyplot.savefig("./images/balance.png")
+           
+    
+    def write_waste_pie(self, data: dict[str, dict]):
+        slices = [abs(data[depatement]["waste"]) for depatement in self.depataments]
+        percent = [f'{round(i / abs(data["DS"]["waste"]) * 100, 1)}%' for i in slices if i != 0]
         
-    def write_waste_pie(self, data):
-        slices = list([abs(value["waste"]) for key, value in data.items() if key != "DS" if value["waste"] != 0])
         if not slices:
             slices += [1] * 5
         if not data["DS"]["waste"]:
             data["DS"]["waste"] = 5
-        percent = list([f'{round(i / abs(data["DS"]["waste"]) * 100, 1)}%' for i in slices if i != 0])
-        fig, ax = plt.subplots()
+        
+        fig, ax = pyplot.subplots()
         ax.pie(slices, labels=percent, wedgeprops={"edgecolor": "black", "linewidth": 1})
-        plt.pie([1], colors="w", radius=0.6)
-        plt.title("Потери")
-        plt.savefig("./images/waste_pie.png")
+        pyplot.pie([1], colors="w", radius=0.6)
+        pyplot.title("Потери")
+        pyplot.savefig("./images/waste.png")
     
-    def write_consumption_pie(self, data):
-        slices = list([abs(value["consumption"]) for key, value in data.items() if key != "DS" if value["consumption"] != 0])
+    
+    
+    def write_consumption_pie(self, data: dict[str, dict]):
+        slices = [abs(data[depatement]["consumption"]) for depatement in self.depataments]
+        percent = [f'{round(i / abs(data["DS"]["consumption"]) * 100, 1)}%' for i in slices if i != 0]
+        
         if not slices:
             slices += [1] * 5
         if not data["DS"]["consumption"]:
             data["DS"]["consumption"] = 5
-        percent = list([f'{round(i / abs(data["DS"]["consumption"]) * 100, 1)}%' for i in slices if i != 0])
-        fig, ax = plt.subplots()
+        
+        fig, ax = pyplot.subplots()
         ax.pie(slices, labels=percent, wedgeprops={"edgecolor": "black", "linewidth": 1})
-        plt.pie([1], colors="w", radius=0.6)
-        plt.title("Полезный отпуск")
-        plt.savefig("./images/consumption_pie.png")
+        pyplot.pie([1], colors="w", radius=0.6)
+        pyplot.title("Полезный отпуск")
+        pyplot.savefig("./images/consumption.png")
     
-    def create_all_pie(self, sheet: Worksheet, data):
+    def create_all_pie(self, sheet: Worksheet = 0, data: dict[str, dict] = 1):
         self.write_waste_pie(data)
         self.write_balance_pie(data)
         self.write_consumption_pie(data)
         
-        balance_pie = Image("./images/balance_pie.png")
+        balance_pie = Image("./images/balance.png")
         balance_pie.anchor = 'A9'
         sheet.add_image(balance_pie)
         
-        consumption = Image("./images/consumption_pie.png")
+        consumption = Image("./images/consumption.png")
         consumption.anchor = 'K9'
         sheet.add_image(consumption)
         
-        waste_pie = Image("./images/waste_pie.png")
+        waste_pie = Image("./images/waste.png")
         waste_pie.anchor = 'U9'
         sheet.add_image(waste_pie)
-    
+        
     def write_bars(self, data: dict):
-        fig, ax = plt.subplots()
-        slices = sorted(list([abs(value["waste"]) for key, value in data.items() if key != "DS" if value["waste"] != 0]))
-        labels = list([value["name"] for value in reversed(sorted(data.values(), key=lambda x: x["waste"])) if value["foreign_key"] is not None])
+        fig, ax = pyplot.subplots()
+        slices = [abs(data[depatement]["waste"]) for depatement in self.depataments]
+        labels = [data[depatement]["name"] for depatement in self.depataments if data[depatement]["name"]]
 
         ax.barh(labels, slices, xerr=min(slices), align="center")
-        plt.title('Потери по структурным подразделениям')
-        plt.ylabel('Структурные подразделения')
-        plt.xlabel('Потери (в млн.)')
-        plt.savefig("./images/hbar.png")
-
+        pyplot.title('Потери по структурным подразделениям')
+        pyplot.ylabel('Структурные подразделения')
+        pyplot.xlabel('Потери (в млн.)')
+        pyplot.savefig("./images/hbar.png")
+    
     def write_departamnents_bars(self, data):
         names = []
         slices = {
@@ -125,7 +124,7 @@ class BalanceAnalytics:
         width = 0.25
         multiplier = 0
 
-        fig, ax = plt.subplots(layout='constrained', figsize=(3.5*7.3, 3.5 * 1.5))
+        fig, ax = pyplot.subplots(layout='constrained', figsize=(3.5*7.3, 3.5 * 1.5))
 
         for attribute, measurement in slices.items():
             offset = width * multiplier
@@ -139,11 +138,11 @@ class BalanceAnalytics:
         ax.set_xticks(x + width, names)
         ax.legend(loc='upper left', ncols=3)
         ax.set_ylim(0, 100)
-        plt.rcParams["figure.figsize"] = 10, 20
-        # plt.savefig("./images/all_bars.png")
-
+        pyplot.rcParams["figure.figsize"] = 10, 20
+        pyplot.savefig("./images/all_bars.png")
+        
     def create_analytics(self, month):
-        data = self.model.serialize_balance(month)
+        data = Balance().serialize_balance(month)
         book = load_workbook(r"C:\Users\user\Desktop\Тест.xlsx")
         sheet = book.worksheets[0]
         
@@ -183,6 +182,9 @@ class BalanceAnalytics:
         hbar = Image("./images/hbar.png")
         hbar.anchor = 'AE9'
         sheet.add_image(hbar)
-    
         
-        book.save("../test/Аналитика баланса электроэнергии/Аналитика Сводного баланса.xlsx")
+        departament_bar = Image("./images/all_bars.png")
+        departament_bar.anchor = "A33"
+        sheet.add_image(departament_bar)
+        
+        book.save(f"{MAIN_DIR}/Аналитика баланса электроэнергии/Аналитика сводного баланса.xlsx")

@@ -1,4 +1,4 @@
-MAIN_DIR = "../test"
+MAIN_DIR = "../Dagenergy"
 
 MONTH_LIST = [
     "Январь", "Февраль", "Март",
